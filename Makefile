@@ -209,8 +209,8 @@ open-minio-console: ## Abre o console web do MinIO no navegador.
 	@open "http://localhost:9001/" || xdg-open "http://localhost:9001/" || start "http://localhost:9001/"
 
 open-adminer: ## Abre o Adminer no navegador.
-	@echo "🌐 Abrindo Adminer em http://localhost:8081/"
-	@open "http://localhost:8081/" || xdg-open "http://localhost:8081/" || start "http://localhost:8081/"
+	@echo "🌐 Abrindo Adminer em http://localhost:8080/"
+	@open "http://localhost:8080/" || xdg-open "http://localhost:8080/" || start "http://localhost:8080/"
 
 open-prometheus: ## Abre a interface web do Prometheus no navegador.
 	@echo "🌐 Abrindo Prometheus em http://localhost:9090/"
