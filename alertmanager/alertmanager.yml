@@ -1,0 +1,38 @@
+# alertmanager/alertmanager.yml
+global:
+  resolve_timeout: 5m
+
+route:
+  group_by: ['alertname', 'instance']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 1h
+  receiver: 'default-receiver'
+
+receivers:
+  - name: 'default-receiver'
+    # Exemplo: Configurar envio de e-mail (Descomente e configure com suas credenciais do .env)
+    # email_configs:
+    #   - to: '${ALERTMANAGER_EMAIL_TO}'
+    #     send_resolved: true
+    #     from: 'alertmanager@seuprojeto.com' # Altere para o seu email de envio
+    #     smarthost: '${SMTP_HOST}:${SMTP_PORT}'
+    #     auth_username: '${SMTP_USERNAME}'
+    #     auth_password: '${SMTP_PASSWORD}'
+    #     require_tls: true
+
+    # Exemplo: Configurar envio para Slack (Descomente e configure com seu webhook do .env)
+    # slack_configs:
+    #   - channel: '#seu-canal-de-alertas' # Altere para o nome do seu canal no Slack
+    #     api_url: '${SLACK_WEBHOOK_URL}'
+    #     send_resolved: true
+    #     text: '{{ .CommonAnnotations.summary }}\n{{ .CommonAnnotations.description }}'
+
+    # Exemplo: Configurar envio para Discord (Descomente e configure com seu webhook do .env)
+    # webhook_configs:
+    #   - url: '${DISCORD_WEBHOOK_URL}'
+    #     send_resolved: true
+
+# Templates (opcional, para customizar mensagens de alerta)
+# templates:
+#   - '/etc/alertmanager/templates/*.tmpl'

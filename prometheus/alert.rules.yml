@@ -1,0 +1,34 @@
+# prometheus/alert.rules.yml
+groups:
+- name: SistemaDockerAlerts
+  rules:
+  - alert: ContainerDown
+    expr: absent(container_last_seen{name=~".+"})
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Container {{ $labels.name }} está inativo!"
+      description: "O container {{ $labels.name }} não está mais reportando métricas ao cAdvisor."
+
+  - alert: HighCPULoad
+    expr: sum(rate(container_cpu_usage_seconds_total{name=~".+"}[1m])) by (name) > 0.8 # Mais de 80% de uso de CPU
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Uso de CPU alto no container {{ $labels.name }}"
+      # >>> INÍCIO DA CORREÇÃO <<<
+      description: "O container {{ $labels.name }} está usando {{ printf \"%.2f\" $value }} CPU por mais de 5 minutos."
+      # >>> FIM DA CORREÇÃO <<<
+
+  - alert: HighMemoryUsage
+    expr: sum(container_memory_usage_bytes{name=~".+"}) by (name) / sum(container_spec_memory_limit_bytes{name=~".+"}) by (name) > 0.8
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Uso de Memória alto no container {{ $labels.name }}"
+      # >>> INÍCIO DA CORREÇÃO <<<
+      description: "O container {{ $labels.name }} está usando {{ printf \"%.2f\" $value }} da memória alocada por mais de 5 minutos."
+      # >>> FIM DA CORREÇÃO <<<

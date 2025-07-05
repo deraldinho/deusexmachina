@@ -1,0 +1,5 @@
+Este é um arquivo placeholder para garantir que o diretório 'n8n-workflows' seja rastreado pelo Git.
+
+Este diretório é destinado a armazenar as exportações JSON dos seus workflows do n8n. Manter os arquivos de workflow aqui permite o controle de versão, o backup e a colaboração no desenvolvimento das automações.
+
+Você pode deletar este arquivo assim que adicionar o primeiro arquivo de workflow (.json) a este diretório.

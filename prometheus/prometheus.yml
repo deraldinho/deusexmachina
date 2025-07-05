@@ -1,0 +1,23 @@
+# prometheus/prometheus.yml
+global:
+  scrape_interval: 15s # Raspa a cada 15 segundos
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['alertmanager:9093'] # Aponta para o serviço Alertmanager
+
+rule_files:
+  - "/etc/prometheus/alert.rules.yml" # Arquivo de regras de alerta
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+
+  # Exemplo de como você adicionaria alvos para seus outros serviços, se eles expusessem métricas Prometheus
+  # O n8n e Open-WebUI por padrão não expõem métricas Prometheus diretamente, mas alguns plugins podem fazer isso.
