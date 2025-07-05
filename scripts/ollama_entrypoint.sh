@@ -12,41 +12,25 @@ ollama serve &
 pid=$!
 echo "Servidor Ollama iniciado em segundo plano com PID: $pid"
 
-# Aguarda um momento para garantir que o servidor esteja pronto para receber conexões
-sleep 3
+# Aguarda o servidor Ollama iniciar e estar pronto para receber conexões
+echo "⏳ Aguardando o servidor Ollama iniciar..."
+until ollama list > /dev/null 2>&1; do
+  sleep 1
+done
+echo "✅ Servidor Ollama está pronto."
 
-# Puxa o modelo inicial, se ainda não existir
-# Isso é mais eficiente do que puxar toda vez.
-MODEL_TO_CHECK="deepseek-r1:1.5b"
-if ! ollama list | grep -q "$MODEL_TO_CHECK"; then
-  echo "Modelo '$MODEL_TO_CHECK' não encontrado. Baixando agora..."
-  ollama pull "$MODEL_TO_CHECK"
-  echo "✅ Modelo baixado com sucesso."
-else
-  echo "✅ Modelo '$MODEL_TO_CHECK' já existe. Pulando o download."
-fi
+# Lista de modelos a serem verificados e baixados
+MODELS=("deepseek-r1:1.5b" "qwen3:1.7b" "deepseek-coder:1.3b") # deepscaler corrigido para deepseek-coder
 
-# Puxa o modelo inicial, se ainda não existir
-# Isso é mais eficiente do que puxar toda vez.
-MODEL_TO_CHECK="qwen3:1.7b"
-if ! ollama list | grep -q "$MODEL_TO_CHECK"; then
-  echo "Modelo '$MODEL_TO_CHECK' não encontrado. Baixando agora..."
-  ollama pull "$MODEL_TO_CHECK"
-  echo "✅ Modelo baixado com sucesso."
-else
-  echo "✅ Modelo '$MODEL_TO_CHECK' já existe. Pulando o download."
-fi
-
-# Puxa o modelo inicial, se ainda não existir
-# Isso é mais eficiente do que puxar toda vez.
-MODEL_TO_CHECK="deepscaler:1.5b"
-if ! ollama list | grep -q "$MODEL_TO_CHECK"; then
-  echo "Modelo '$MODEL_TO_CHECK' não encontrado. Baixando agora..."
-  ollama pull "$MODEL_TO_CHECK"
-  echo "✅ Modelo baixado com sucesso."
-else
-  echo "✅ Modelo '$MODEL_TO_CHECK' já existe. Pulando o download."
-fi
+for MODEL_TO_CHECK in "${MODELS[@]}"; do
+  if ! ollama list | grep -q "$MODEL_TO_CHECK"; then
+    echo "Modelo '$MODEL_TO_CHECK' não encontrado. Baixando agora..."
+    ollama pull "$MODEL_TO_CHECK"
+    echo "✅ Modelo baixado com sucesso."
+  else
+    echo "✅ Modelo '$MODEL_TO_CHECK' já existe. Pulando o download."
+  fi
+done
 
 echo "✨ Configuração inicial concluída. O servidor continuará em execução."
 

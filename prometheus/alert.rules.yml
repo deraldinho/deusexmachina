@@ -3,14 +3,17 @@ groups:
 - name: SistemaDockerAlerts
   rules:
   - alert: ContainerDown
-    expr: absent(container_last_seen{name=~".+"})
+    expr: absent(container_cpu_usage_seconds_total{name=~".+"}) # Verifica a ausência de métricas de CPU, mais robusto que container_last_seen
     for: 1m
     labels:
       severity: critical
     annotations:
       summary: "Container {{ $labels.name }} está inativo!"
-      description: "O container {{ $labels.name }} não está mais reportando métricas ao cAdvisor."
+      description: "O container {{ $labels.name }} não está mais reportando métricas de CPU ao cAdvisor. Isso pode indicar que ele está inativo ou com problemas."
 
+  # Os limites de CPU e memória (0.8 = 80%) são fixos neste exemplo.
+  # Em um ambiente de produção, considere torná-los configuráveis ou ajustá-los
+  # com base nas necessidades específicas de cada container/aplicação.
   - alert: HighCPULoad
     expr: sum(rate(container_cpu_usage_seconds_total{name=~".+"}[1m])) by (name) > 0.8 # Mais de 80% de uso de CPU
     for: 5m
@@ -29,6 +32,14 @@ groups:
       severity: warning
     annotations:
       summary: "Uso de Memória alto no container {{ $labels.name }}"
-      # >>> INÍCIO DA CORREÇÃO <<<
       description: "O container {{ $labels.name }} está usando {{ printf \"%.2f\" $value }} da memória alocada por mais de 5 minutos."
-      # >>> FIM DA CORREÇÃO <<<
+
+  # Alerta para containers que reiniciam frequentemente (instabilidade)
+  - alert: ContainerFrequentRestarts
+    expr: changes(container_restarts_total{name=~".+"}[5m]) > 2 # Mais de 2 reinícios em 5 minutos
+    for: 0m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Container {{ $labels.name }} reiniciando frequentemente!"
+      description: "O container {{ $labels.name }} reiniciou mais de 2 vezes nos últimos 5 minutos. Isso pode indicar instabilidade."

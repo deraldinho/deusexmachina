@@ -1,6 +1,10 @@
 # prometheus/prometheus.yml
 global:
   scrape_interval: 15s # Raspa a cada 15 segundos
+  storage:
+    tsdb:
+      retention:
+        time: 15d # Retém dados por 15 dias. Ajuste conforme necessário.
 
 alerting:
   alertmanagers:
@@ -19,5 +23,34 @@ scrape_configs:
     static_configs:
       - targets: ['cadvisor:8080']
 
-  # Exemplo de como você adicionaria alvos para seus outros serviços, se eles expusessem métricas Prometheus
-  # O n8n e Open-WebUI por padrão não expõem métricas Prometheus diretamente, mas alguns plugins podem fazer isso.
+  # Exemplos de como você adicionaria alvos para seus outros serviços, se eles expusessem métricas Prometheus
+  # ou se você usasse um exportador de métricas para eles.
+
+  # - job_name: 'n8n'
+  #   static_configs:
+  #     - targets: ['n8n:5678'] # Se o n8n expuser métricas Prometheus
+
+  # - job_name: 'open-webui'
+  #   static_configs:
+  #     - targets: ['open-webui:8080'] # Se o Open WebUI expuser métricas Prometheus
+
+  # - job_name: 'redis'
+  #   static_configs:
+  #     - targets: ['redis:9121'] # Exemplo: se você usar um redis_exporter na porta 9121
+
+  # - job_name: 'minio'
+  #   static_configs:
+  #     - targets: ['minio:9000'] # MinIO expõe métricas na porta da API
+
+  # - job_name: 'adminer'
+  #   static_configs:
+  #     - targets: ['adminer:8080'] # Se o Adminer expuser métricas Prometheus
+
+  # - job_name: 'grafana'
+  #   static_configs:
+  #     - targets: ['grafana:3000'] # Grafana expõe métricas em /metrics
+
+  # - job_name: 'alertmanager'
+  #   static_configs:
+  #     - targets: ['alertmanager:9093'] # Alertmanager expõe métricas em /metrics
+  

@@ -11,15 +11,14 @@ route:
 
 receivers:
   - name: 'default-receiver'
-    # Exemplo: Configurar envio de e-mail (Descomente e configure com suas credenciais do .env)
-    # email_configs:
-    #   - to: '${ALERTMANAGER_EMAIL_TO}'
-    #     send_resolved: true
-    #     from: 'alertmanager@seuprojeto.com' # Altere para o seu email de envio
-    #     smarthost: '${SMTP_HOST}:${SMTP_PORT}'
-    #     auth_username: '${SMTP_USERNAME}'
-    #     auth_password: '${SMTP_PASSWORD}'
-    #     require_tls: true
+    email_configs:
+      - to: '${ALERTMANAGER_EMAIL_TO}'
+        send_resolved: true
+        from: 'alertmanager@seuprojeto.com' # Altere para o seu email de envio
+        smarthost: '${SMTP_HOST}:${SMTP_PORT}'
+        auth_username: '${SMTP_USERNAME}'
+        auth_password: '${SMTP_PASSWORD}'
+        require_tls: true
 
     # Exemplo: Configurar envio para Slack (Descomente e configure com seu webhook do .env)
     # slack_configs:

@@ -4,7 +4,7 @@
 .DEFAULT_GOAL := help
 
 # Evita que o 'make' confunda os alvos com nomes de arquivos.
-.PHONY: help up down build status validate restart         logs logs-n8n logs-db logs-ollama logs-webui logs-redis logs-minio logs-caddy logs-adminer         logs-cadvisor logs-prometheus logs-grafana logs-alertmanager         access-n8n access-db access-ollama access-webui access-redis access-minio access-caddy access-adminer         access-cadvisor access-prometheus access-grafana access-alertmanager         open-n8n open-webui open-minio-console open-adminer open-prometheus open-grafana open-alertmanager         add-model psql prune reset scan-images backup-volumes         n8n-import-workflow n8n-test-workflow         restart-n8n restart-db restart-ollama restart-webui restart-redis restart-minio restart-caddy restart-adminer         restart-cadvisor restart-prometheus restart-grafana restart-alertmanager         portainer-setup
+.PHONY: help up down build status validate restart         logs logs-n8n logs-db logs-ollama logs-webui logs-redis logs-minio logs-adminer         logs-cadvisor logs-prometheus logs-grafana logs-alertmanager         access-n8n access-db access-ollama access-webui access-redis access-minio access-adminer         access-cadvisor access-prometheus access-grafana access-alertmanager         open-n8n open-webui open-minio-console open-adminer open-prometheus open-grafana open-alertmanager         add-model psql prune scan-images backup-volumes         n8n-import-workflow n8n-test-workflow         restart-n8n restart-db restart-ollama restart-webui restart-redis restart-minio restart-adminer         restart-cadvisor restart-prometheus restart-grafana restart-alertmanager         portainer-setup
 
 # Define o shell padrão a ser usado para todos os comandos
 SHELL := /bin/bash
@@ -69,9 +69,7 @@ restart-minio: ## Reinicia apenas o container do MinIO.
 	@echo "🔄 Reiniciando o serviço MinIO..."
 	@docker compose restart minio
 
-restart-caddy: ## Reinicia apenas o container do Caddy.
-	@echo "🔄 Reiniciando o serviço Caddy..."
-	@docker compose restart caddy
+
 
 restart-adminer: ## Reinicia apenas o container do Adminer.
 	@echo "🔄 Reiniciando o serviço Adminer..."
@@ -122,9 +120,7 @@ logs-minio: ## Exibe os logs apenas do serviço MinIO.
 	@echo "📜 Exibindo logs do MinIO..."
 	@docker compose logs -f minio
 
-logs-caddy: ## Exibe os logs apenas do serviço Caddy.
-	@echo "📜 Exibindo logs do Caddy..."
-	@docker compose logs -f caddy
+
 
 logs-adminer: ## Exibe os logs apenas do serviço Adminer.
 	@echo "📜 Exibindo logs do Adminer..."
@@ -171,9 +167,7 @@ access-minio: ## Acessa um shell interativo no container do MinIO.
 	@echo "🚪 Acessando shell do MinIO."
 	@docker compose exec minio bash || docker compose exec minio sh
 
-access-caddy: ## Acessa um shell interativo no container do Caddy.
-	@echo "🚪 Acessando shell do Caddy."
-	@docker compose exec caddy bash || docker compose exec caddy sh
+
 
 access-adminer: ## Acessa um shell interativo no container do Adminer.
 	@echo "🚪 Acessando shell do Adminer."
@@ -209,8 +203,8 @@ open-minio-console: ## Abre o console web do MinIO no navegador.
 	@open "http://localhost:9001/" || xdg-open "http://localhost:9001/" || start "http://localhost:9001/"
 
 open-adminer: ## Abre o Adminer no navegador.
-	@echo "🌐 Abrindo Adminer em http://localhost:8080/"
-	@open "http://localhost:8080/" || xdg-open "http://localhost:8080/" || start "http://localhost:8080/"
+	@echo "🌐 Abrindo Adminer em http://localhost:8081/"
+	@open "http://localhost:8081/" || xdg-open "http://localhost:8081/" || start "http://localhost:8081/"
 
 open-prometheus: ## Abre a interface web do Prometheus no navegador.
 	@echo "🌐 Abrindo Prometheus em http://localhost:9090/"
@@ -308,10 +302,10 @@ ifeq ($(FILE),)
 	@exit 1
 endif
 	@echo "📤 Importando workflow de $(FILE) para o n8n..."
-	@curl -s -X POST "https://n8n.$(DOMAIN)/api/v1/workflows?import=true" \
+	@curl -s -X POST "http://n8n.$(DOMAIN)/api/v1/workflows?import=true" \
 	-H "Content-Type: application/json" \
 	-H "X-N8N-API-KEY: $(N8N_USER_API_KEY)" \
-	--data-binary "@$(FILE)" | python -m json.tool || echo "Erro ao importar workflow."
+	--data-binary "@$(FILE)" | python -m json.tool || echo "❌ Erro ao importar workflow. Verifique os logs do n8n e o arquivo JSON."
 	@echo "✅ Workflow importado (ou atualizado) no n8n."
 	@echo "Lembre-se de ativar o workflow no n8n se for a primeira importação."
 
@@ -324,8 +318,8 @@ ifeq ($(WEBHOOK_ID),)
 endif
 	@echo "🧪 Acionando webhook do n8n para o workflow ID: $(WEBHOOK_ID)..."
 	@CURL_DATA=$(if $(INPUT),-H "Content-Type: application/json" --data '$(INPUT)',) ; \
-	curl -s -X POST "https://n8n.$(DOMAIN)/webhook/$(WEBHOOK_ID)" \
-	$$CURL_DATA | python -m json.tool || echo "Erro ao testar workflow."
+	curl -s -X POST "http://n8n.$(DOMAIN)/webhook/$(WEBHOOK_ID)" \
+	$CURL_DATA | python -m json.tool || echo "❌ Erro ao testar workflow. Verifique os logs do n8n e o ID do webhook."
 	@echo "✅ Teste de workflow concluído."
 
 portainer-setup: ## Abre o Portainer UI para configuração inicial (se ativo no docker-compose).

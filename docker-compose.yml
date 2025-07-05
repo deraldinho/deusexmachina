@@ -311,6 +311,12 @@ services:
       - "9093:9093" # Alertmanager UI
     networks:
       - dem-network
+    environment:
+      - ALERTMANAGER_EMAIL_TO=${ALERTMANAGER_EMAIL_TO}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
     logging:
       driver: "json-file"
       options:
@@ -338,7 +344,7 @@ services:
       - grafana_data:/grafana_data_volume:ro
       - prometheus_data:/prometheus_data_volume:ro
       - alertmanager_data:/alertmanager_data_volume:ro
-    command: ["sh", "-c", "echo 'Este container é um utilitário para backups. Execute \'make backup-volumes\' no host.' && sleep infinity"]
+    command: ["sh", "-c", "echo 'Este container é um utilitário para backups. Execute \\'make backup-volumes\\' no host.' && sleep infinity"]
     networks:
       - dem-network
     logging:
