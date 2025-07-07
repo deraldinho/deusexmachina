@@ -20,9 +20,9 @@ done
 echo "✅ Servidor Ollama está pronto."
 
 # Lista de modelos a serem verificados e baixados
-MODELS=("deepseek-r1:1.5b" "qwen3:1.7b" "deepseek-coder:1.3b") # deepscaler corrigido para deepseek-coder
+MODELS="deepseek-r1:1.5b qwen3:1.7b deepseek-coder:1.3b" # deepscaler corrigido para deepseek-coder
 
-for MODEL_TO_CHECK in "${MODELS[@]}"; do
+for MODEL_TO_CHECK in $MODELS; do
   if ! ollama list | grep -q "$MODEL_TO_CHECK"; then
     echo "Modelo '$MODEL_TO_CHECK' não encontrado. Baixando agora..."
     ollama pull "$MODEL_TO_CHECK"

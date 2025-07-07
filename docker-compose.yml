@@ -1,9 +1,7 @@
 # docker-compose.yml
-
-
 services:
   n8n:
-    image: n8nio/n8n:next
+    image: n8nio/n8n:latest
     container_name: dem_n8n
     restart: unless-stopped
     environment:
@@ -311,12 +309,7 @@ services:
       - "9093:9093" # Alertmanager UI
     networks:
       - dem-network
-    environment:
-      - ALERTMANAGER_EMAIL_TO=${ALERTMANAGER_EMAIL_TO}
-      - SMTP_HOST=${SMTP_HOST}
-      - SMTP_PORT=${SMTP_PORT}
-      - SMTP_USERNAME=${SMTP_USERNAME}
-      - SMTP_PASSWORD=${SMTP_PASSWORD}
+    
     logging:
       driver: "json-file"
       options:
