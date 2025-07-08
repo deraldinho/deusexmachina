@@ -84,9 +84,15 @@ services:
           memory: 256M
 
   ollama:
-    image: ollama/ollama
+    image: ollama/ollama:rocm
     container_name: dem_ollama
     restart: unless-stopped
+    devices:
+      - /dev/kfd:/dev/kfd
+      - /dev/dri:/dev/dri
+    group_add:
+      - video
+      - render
     volumes:
       - ./scripts:/scripts
       - ollama_data:/root/.ollama

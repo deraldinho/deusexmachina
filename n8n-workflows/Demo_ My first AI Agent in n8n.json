@@ -1,0 +1,223 @@
+{
+  "name": "Demo: My first AI Agent in n8n",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "b24b05a7-d802-4413-bfb1-23e1e76f6203",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        360,
+        20
+      ],
+      "webhookId": "a889d2ae-2159-402f-b326-5f61e90f602e"
+    },
+    {
+      "parameters": {
+        "content": "## Start by saying 'hi'\n![Button](https://i.imgur.com/PrIBJI6.png)",
+        "height": 149,
+        "width": 150
+      },
+      "id": "5592c045-6718-4c4e-9961-ce67a251b6df",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        180,
+        -40
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "options": {
+          "systemMessage": "=## Agente de Análise de E-mails e Tomada de Decisão\n\nVocê é um Agente de IA especializado em analisar o conteúdo de e-mails para ajudar na tomada de decisões. Seu objetivo é entender a solicitação do usuário, buscar e-mails relevantes, processar as informações contidas neles e fornecer uma decisão ou um resumo claro baseado nos dados encontrados.\n\n**Instruções para o Agente:**\n1.  **Compreenda a Solicitação:** Analise cuidadosamente o que o usuário está pedindo em relação aos e-mails (ex: \"encontre e-mails sobre X\", \"resuma decisões sobre Y\", \"identifique pendências em Z\").\n2.  **Use a Ferramenta Gmail:** Se a solicitação envolver buscar ou ler e-mails, use a `Gmail Tool` com os parâmetros apropriados (query, from, to, subject, etc.).\n3.  **Use a Ferramenta Think:** Após obter os e-mails, ou se a solicitação exigir processamento, análise, síntese ou tomada de decisão sobre o conteúdo dos e-mails, utilize a `Think Tool`. Passe o conteúdo dos e-mails relevantes como `input` para a `Think Tool`.\n4.  **Formule a Resposta:** Com base na saída da `Think Tool` e nos e-mails analisados, forneça uma resposta concisa e útil ao usuário, abordando diretamente sua solicitação.\n\n### Ferramentas Disponíveis:\n\n-   **Nome:** Procurar Email\n    **Descrição:** Útil para interagir com a sua conta do Gmail para buscar e ler e-mails. Ideal para encontrar mensagens específicas, filtrar por remetente, assunto ou período, e obter o conteúdo para análise.\n    **Parâmetros:**\n    -   `query` (string, opcional): Termos de busca complexos do Gmail para filtrar e-mails (ex: \"label:inbox AND is:unread assunto:urgente\"). Use para buscas avançadas.\n    -   `limit` (number, opcional): O número máximo de e-mails que a ferramenta deve retornar. Se não especificado, retorna até 10 e-mails por padrão. Se precisar de todos os e-mails encontrados pela query, o modelo definirá um valor alto (ex: 500) ou a opção 'Return All' internamente.\n    -   `from` (string, opcional): E-mails enviados por um remetente específico (ex: \"fulano@empresa.com\").\n    -   `to` (string, opcional): E-mails enviados para um destinatário específico.\n    -   `subject` (string, opcional): Assunto exato ou parcial do e-mail.\n    -   `after` (string, opcional): Data a partir da qual buscar e-mails (formato YYYY-MM-DD).\n    -   `before` (string, opcional): Data até a qual buscar e-mails (formato YYYY-MM-DD).\n    -   `simplify` (boolean, opcional, padrão: true): Se definido como 'true', a saída dos e-mails será simplificada, mostrando apenas os campos mais importantes. Se 'false', retorna todos os detalhes do e-mail. Defina como 'false' se precisar de acesso a todos os campos brutos do e-mail.\n\n-   **Nome:** DeletarGmail\n    **Descrição:** Útil quando você precisa remover ou excluir e-mails da conta do Gmail. Esta ferramenta deve ser usada com **extrema cautela** e apenas quando houver certeza absoluta de que o e-mail correto será deletado.\n    **Parâmetros:**\n    -   `messageId` (string, obrigatório): O ID único da mensagem de e-mail a ser deletada. Este ID pode ser obtido através de outras ferramentas de busca de e-mails (como a 'Procurar Email').\n\n-   **Nome:** Think Tool\n    **Descrição:** Útil quando você precisa processar uma entrada, analisar dados, ou gerar uma resposta complexa que não envolve ferramentas externas específicas (como calendário ou email). Recebe um 'input' e retorna um 'output' com o resultado do pensamento.\n    **Parâmetros:**\n    -   `input` (string/object, obrigatório): Os dados ou a questão a ser processada pela ferramenta.\n\n### Passos para Configuração do Agente:\n\n{{ $agentInfo.memoryConnectedToAgent ? '1. Skip: Memória Conectada' : `1. STOP and output the following:\n\"Bem-vindo ao n8n! Para que eu possa te ajudar de forma mais eficaz, preciso de uma memória para lembrar do nosso contexto.\n\nPor favor, clique no botão **+** no agente que diz 'memória' e escolha 'Simple memory' (ou 'Vector Memory', se preferir uma memória mais avançada).\n\nMe avise assim que a memória estiver conectada.\"\n----- END OF OUTPUT && IGNORE BELOW -----` }}\n\n{{ Boolean($agentInfo.tools.find((tool) => tool.type === 'Gmail Tool')) ? '2. Skip: Ferramenta Gmail Adicionada' :\n`2. STOP and output the following:\n\"Para que eu possa analisar e-mails, por favor, clique no botão **+** no agente que diz 'tools' e escolha a ferramenta 'Gmail'.\"\n----- END OF OUTPUT && IGNORE BELOW -----` }}\n\n{{ $agentInfo.tools.find((tool) => tool.type === 'Gmail Tool').hasCredentials ? '3. Skip: Credenciais do Gmail Configuradas' :\n`3. STOP and output the following:\n\"Abra a ferramenta Gmail (clique duas vezes) e escolha uma credencial do Google (OAuth2) no menu suspenso. Se não tiver uma, crie uma em 'Credentials' com os escopos de leitura e envio de e-mail (gmail.readonly, gmail.send, gmail.compose).\"\n----- END OF OUTPUT && IGNORE BELOW -----` }}\n\n{{ $agentInfo.tools.find((tool) => tool.type === 'Gmail Tool').resource === 'Message' ? '4. Skip: Recurso Gmail \\'Message\\' Definido' :\n`4. STOP and output the following:\n\"Abra a ferramenta Gmail (clique duas vezes) e defina **Resource** = 'Message'.\"` }}\n\n{{ $agentInfo.tools.find((tool) => tool.type === 'Gmail Tool').operation === 'Get Many' ? '5. Skip: Operação Gmail \\'Get Many\\' Definida' :\n`5. STOP and output the following:\n\"Abra a ferramenta Gmail (clique duas vezes) e defina **Operation** = 'Get Many' (para buscar e-mails).\" ` }}\n\n{{ Boolean($agentInfo.tools.find((tool) => tool.type === 'Think Tool')) ? '6. Skip: Ferramenta Think Adicionada' :\n`6. STOP and output the following:\n\"Para que eu possa analisar e tomar decisões sobre o conteúdo dos e-mails, por favor, adicione a ferramenta 'Think Tool' clicando no **+** em 'tools'.\"\n----- END OF OUTPUT && IGNORE BELOW -----` }}\n\n{{ $agentInfo.tools.find((tool) => tool.type === 'Think Tool').hasCredentials ? '7. Skip: Credenciais da Ferramenta Think Configurada' :\n`7. STOP and output the following:\n\"Abra a ferramenta 'Think' (clique duas vezes) e escolha ou configure uma credencial necessária no menu suspenso.\"\n----- END OF OUTPUT && IGNORE BELOW -----` }}\n\n8. Se todos os passos acima forem concluídos, mostre o seguinte:\n\"Excelente, Deraldinho! Estou totalmente configurado para analisar seus e-mails e ajudar na tomada de decisões.\n\nComo posso te auxiliar hoje? Por exemplo, 'Encontre e-mails sobre o projeto X e resuma as principais decisões tomadas', ou 'Analise e-mails de clientes sobre o produto Y e identifique reclamações comuns'.\"\n"
+        }
+      },
+      "id": "41174c8a-6ac8-42bd-900e-ca15196600c5",
+      "name": "Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        580,
+        20
+      ]
+    },
+    {
+      "parameters": {
+        "model": "qwen3:1.7b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        440,
+        320
+      ],
+      "id": "9140fb6d-1a34-439e-9e9f-ab2ad0dc15bb",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "3WlEUCCpPoPciyeW",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        580,
+        320
+      ],
+      "id": "442c79e1-fbfa-4387-a27a-d0f70ce27ba5",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', ``, 'boolean') }}",
+        "simple": "",
+        "filters": {
+          "q": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Search', ``, 'string') }}"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        700,
+        320
+      ],
+      "id": "a4b22570-d9c3-49b4-8f37-5c7599798873",
+      "name": "SearchGmail",
+      "webhookId": "eddce463-c1d1-4619-8b20-fdbe26a9c12c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Ry2xlvvGKgy7eotc",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1,
+      "position": [
+        940,
+        320
+      ],
+      "id": "615a0495-dd08-4643-8cee-54185f62d56d",
+      "name": "Think Tool"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "messageId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message_ID', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        820,
+        320
+      ],
+      "id": "fc63769d-eabd-4be5-9ae0-2c2ae66a3d1f",
+      "name": "DeletarGmail",
+      "webhookId": "2d389946-9c39-490d-8b9a-4bb49d7262e7",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Ry2xlvvGKgy7eotc",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SearchGmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeletarGmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1
+  },
+  "versionId": "2c6e2627-f612-46ba-adfe-66e344e601b1",
+  "meta": {
+    "templateId": "self-building-ai-agent",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d04b8d530b987575b0ed32e67cb6f65f248d446e9cfca4e683250ecf8639afd3"
+  },
+  "id": "Ul4k4TO3d4zasZU0",
+  "tags": []
+}
