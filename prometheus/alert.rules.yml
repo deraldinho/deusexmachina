@@ -22,7 +22,7 @@ groups:
     annotations:
       summary: "Uso de CPU alto no container {{ $labels.name }}"
       # >>> INÍCIO DA CORREÇÃO <<<
-      description: "O container {{ $labels.name }} está usando {{ printf \"%.2f\" $value }} CPU por mais de 5 minutos."
+      description: "O container {{ $labels.name }} está usando {{ printf "%.0f" ($value * 100) }}% da CPU por mais de 5 minutos."
       # >>> FIM DA CORREÇÃO <<<
 
   - alert: HighMemoryUsage
