@@ -24,13 +24,13 @@ scrape_configs:
   # Exemplos de como você adicionaria alvos para seus outros serviços, se eles expusessem métricas Prometheus
   # ou se você usasse um exportador de métricas para eles.
 
-  - job_name: 'n8n'
-    static_configs:
-      - targets: ['n8n:5678'] # Se o n8n expuser métricas Prometheus
+  # - job_name: 'n8n'
+  #   static_configs:
+  #     - targets: ['n8n:5678'] # Se o n8n expuser métricas Prometheus
 
-  - job_name: 'open-webui'
-    static_configs:
-      - targets: ['open-webui:8080'] # Se o Open WebUI expuser métricas Prometheus
+  # - job_name: 'open-webui'
+  #   static_configs:
+  #     - targets: ['open-webui:8080'] # Se o Open WebUI expuser métricas Prometheus
 
   # - job_name: 'redis'
   #   static_configs:
